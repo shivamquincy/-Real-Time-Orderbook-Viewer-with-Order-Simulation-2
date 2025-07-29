@@ -29,6 +29,10 @@ const SpreadChart = () => {
  const orderBook = useOrderBookWebSocket('BTC-PERPETUAL');
    const asksRaw = orderBook.asks || [];
 const bidsRaw = orderBook.bids || [];
+// console.log("this is asks raw");
+// console.log(asksRaw);
+// console.log("this is bids raw");
+// console.log(bidsRaw);
 const bestBid = bidsRaw[0] ? parseFloat(bidsRaw[0][1]) : null;
 const bestAsk = asksRaw[0] ? parseFloat(asksRaw[0][1]) : null;
 // console.log('🔥 Order Book Data' , asksRaw, bidsRaw);

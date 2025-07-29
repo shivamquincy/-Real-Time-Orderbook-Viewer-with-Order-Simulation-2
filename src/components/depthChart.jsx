@@ -1,48 +1,98 @@
 "use client";
-import React, { createContext, useContext, useState } from 'react';
+import React, { useEffect, useState, useRef } from "react";
 import {
   LineChart,
   Line,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend
+  Legend,
 } from "recharts";
-import useOrderBookWebSocket from '@/hooks/useOrderBook';
 
-const data = [
-  { price: 99, bid: 0, ask: 40 },
-  { price: 100, bid: 50, ask: 35 },
-  { price: 101, bid: 100, ask: 30 },
-  { price: 102, bid: 150, ask: 25 },
-  { price: 103, bid: 200, ask: 20 },
-  { price: 104, bid: 250, ask: 15 },
-  { price: 105, bid: 300, ask: 10 },
-];
+import useOrderBookWebSocket from "@/hooks/useOrderBook";
+import useProcessedDepthData from "@/hooks/useProcessedDepthData";
+
+const MAX_POINTS = 50;
 
 const DepthChart = () => {
-const orderBook = useOrderBookWebSocket('BTC-PERPETUAL');
-   const asksRaw = orderBook.asks || [];
-const bidsRaw = orderBook.bids || [];
-console.log(asksRaw, bidsRaw);
+  const orderBook = useOrderBookWebSocket("BTC-PERPETUAL");
+  const asksRaw = orderBook.asks || [];
+  const bidsRaw = orderBook.bids || [];
+
+  const processedData = useProcessedDepthData(bidsRaw, asksRaw, 500);
+  const lastTradePrice =
+    bidsRaw.length && asksRaw.length
+      ? (bidsRaw[0].price + asksRaw[0].price) / 2
+      : null;
+      console.log(lastTradePrice);
+
+  const [chartData, setChartData] = useState([]);
+  const bufferRef = useRef([]);
+
+  useEffect(() => {
+    if (!processedData || processedData.length === 0) return;
+
+    // Add new snapshot to buffer
+    bufferRef.current = [...processedData];
+
+    const filtered = bufferRef.current
+      .filter((entry) => entry.price && (entry.bid || entry.ask))
+      .sort((a, b) => a.price - b.price)
+      .slice(-MAX_POINTS);
+
+    setChartData(filtered);
+  }, [processedData]);
 
   return (
     <div className="w-full h-96 p-4">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data}>
+        <LineChart data={chartData}>
+          <defs>
+            <linearGradient id="bidGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#00C49F" stopOpacity={0.4} />
+              <stop offset="95%" stopColor="#00C49F" stopOpacity={0} />
+            </linearGradient>
+            <linearGradient id="askGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#FF4D4F" stopOpacity={0.4} />
+              <stop offset="95%" stopColor="#FF4D4F" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="price" />
           <YAxis />
           <Tooltip />
           <Legend />
+
+          {/* Area with gradient underlines */}
+          <Area
+            type="monotone"
+            dataKey="bid"
+            stroke={false}
+            fill="url(#bidGradient)"
+            dot={false}
+            isAnimationActive={false}
+          />
+          <Area
+            type="monotone"
+            dataKey="ask"
+            stroke={false}
+            fill="url(#askGradient)"
+            dot={false}
+            isAnimationActive={false}
+          />
+
+          {/* Crisp top edge lines */}
           <Line
             type="monotone"
             dataKey="bid"
             stroke="#00C49F"
             strokeWidth={2}
             dot={false}
+            isAnimationActive={false}
             name="Bids"
           />
           <Line
@@ -51,6 +101,7 @@ console.log(asksRaw, bidsRaw);
             stroke="#FF4D4F"
             strokeWidth={2}
             dot={false}
+            isAnimationActive={false}
             name="Asks"
           />
         </LineChart>

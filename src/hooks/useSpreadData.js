@@ -26,7 +26,8 @@ export default function useSpreadHistory(spread, interval = 1000, maxEntries = 6
           const newEntry = { time, spread: currentSpread.toFixed(2) };
           const updated = [...prev, newEntry];
           if (updated.length > maxEntries) updated.shift();
-          console.log("Updated Spread History:", updated);
+          // uncomment this to debug
+          // console.log("Updated Spread History:", updated);
           return updated;
         });
       }
