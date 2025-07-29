@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",            // <-- This is required
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["src/*"]         // Now this works!
     }
   }
 }
