@@ -4,14 +4,15 @@ import OrderBookTables from '@/components/orderBook';
 import SpreadChart from '@/components/spreadChart';
 import DepthChart from '@/components/depthChart';
 
+
 export default function HomePage() {
   return (
     <div className="min-h-screen p-4">
       <div className="flex items-center gap-2">
         <img
-          src="/file.svg"
+          src="/file1.png"
           alt="Vam Charts Logo"
-          className="w-30 h-30"
+          className="w-40 h-35 "
         />
       </div>
 
@@ -30,9 +31,7 @@ export default function HomePage() {
         {/* Future Order Table + Charts */}
         <section className="col-span-1 bg-[#000003] p-4 rounded flex flex-col gap-4">
           {/* Placeholder for Future Order Table */}
-          {/* <div className="h-1/2 bg-gray-800 text-white rounded flex items-center justify-center text-sm">
-            Future Order Table
-          </div> */}
+
 
           {/* Charts */}
           <div className="h-1/2 flex flex-col gap-4">

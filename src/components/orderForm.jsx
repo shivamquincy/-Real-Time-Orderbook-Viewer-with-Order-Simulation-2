@@ -1,10 +1,21 @@
 'use client'
-import React from 'react'
+import React , {useEffect} from 'react'
+import { useSimulatedOrders } from '@/context/SimulatedOrdersContext';
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as Yup from 'yup'
 
 const OrderForm = () => {
+ const { simulatedOrders, setSimulatedOrders } = useSimulatedOrders();
+
+function addOrderToSimulation(order) {
+  setSimulatedOrders(prev => [...prev, order]);
+}
+
+useEffect(() => {
+  console.log('Simulated orders changed:', simulatedOrders);
+}, [simulatedOrders]);
+
   const schema = Yup.object().shape({
     venue: Yup.string().required('Venue is required'),
     symbol: Yup.string().required('Symbol is required'),
@@ -40,9 +51,26 @@ const OrderForm = () => {
     },
   })
 
-  const onSubmit = (data) => {
-    console.log('Form Data:', data)
-  }
+   const onSubmit = (data) => {
+    const order = {
+      venue: data.venue,
+      symbol: data.symbol,
+      orderType: data.orderType,
+      side: data.side,
+      quantity: Number(data.quantity),
+      price: data.orderType === 'Limit' ? Number(data.price) : null,
+      delay: Number(data.delay),
+      timestamp: Date.now(),
+    };
+
+    if (order.delay > 0) {
+      setTimeout(() => {
+        addOrderToSimulation(order);
+      }, order.delay * 1000);
+    } else {
+      addOrderToSimulation(order);
+    }
+  };
 
   const selectedOrderType = watch('orderType')
 

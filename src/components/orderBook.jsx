@@ -1,60 +1,78 @@
 "use client";
 import React, { useEffect } from "react";
 import useOrderBookWebSocket from "@/hooks/useOrderBook";
+import { useSimulatedOrders } from "@/context/SimulatedOrdersContext";
 
- const calculateTotal = (entries) => {
-    let runningTotal = 0;
-    return entries.map((entry) => {
-      runningTotal += parseFloat(entry.amount);
-      const amountInK = (parseFloat(entry.amount) / 1000).toFixed(2);
-      const totalInK = (runningTotal / 1000).toFixed(2);
-      return {
-        price: entry.price,
-        amount: `${amountInK}k`,
-        total: `${totalInK}k`,
-      };
-    });
-  };
+const calculateTotal = (entries) => {
+  let runningTotal = 0;
+  return entries.map((entry) => {
+    runningTotal += parseFloat(entry.amount) || 0;
+    const amountInK = (parseFloat(entry.amount) / 1000).toFixed(2);
+    const totalInK = (runningTotal / 1000).toFixed(2);
+    return {
+      ...entry,
+      amount: `${amountInK}k`,
+      total: `${totalInK}k`,
+    };
+  });
+};
 
-function padArray(arr, desiredLength, padWith = { price: '--', amount: 0 }) {
+function padArray(arr, desiredLength, padWith = { price: "--", amount: 0, total: 0 }) {
   if (arr.length >= desiredLength) return arr.slice(0, desiredLength);
   return [...arr, ...Array(desiredLength - arr.length).fill(padWith)];
 }
 
+const mergeOrders = (live, simulated, side) => {
+  const merged = [...live];
+
+  simulated
+    .filter((o) => o.side.toLowerCase() === side.toLowerCase())
+    .forEach((order) => {
+      merged.push({
+        price: order.price,
+        amount: order.quantity,
+        isSimulated: true,
+      });
+    });
+
+  // Sort: Bids = descending, Asks = ascending
+  merged.sort((a, b) =>
+    side.toLowerCase() === "buy"
+      ? parseFloat(b.price) - parseFloat(a.price)
+      : parseFloat(a.price) - parseFloat(b.price)
+  );
+
+  return merged;
+};
 
 const OrderBookTables = () => {
-  const orderBook = useOrderBookWebSocket('BTC-PERPETUAL');
-  const loading = !orderBook || !orderBook.bids || !orderBook.asks;
+  const orderBook = useOrderBookWebSocket("BTC-PERPETUAL");
+  const loading = !orderBook?.bids || !orderBook?.asks;
   const error = !orderBook ? "Failed to load order book" : null;
 
-  // useEffect(() => {
-  //   console.log('📥 Component orderBook:', orderBook);
-  // }, [orderBook]);
-
+  const { simulatedOrders } = useSimulatedOrders();
 
   const asksRaw = orderBook.asks || [];
-const bidsRaw = orderBook.bids || [];
+  const bidsRaw = orderBook.bids || [];
 
-const asksMappedFiltered = asksRaw
-  .filter(([status]) => status !== 'delete')
-  .map(([status, price, amount]) => ({ price, amount }));
+  const asks = asksRaw
+    .filter(([status]) => status !== "delete")
+    .map(([_, price, amount]) => ({ price, amount }));
 
-const bidsMappedFiltered = bidsRaw
-  .filter(([status]) => status !== 'delete')
-  .map(([status, price, amount]) => ({ price, amount }));
+  const bids = bidsRaw
+    .filter(([status]) => status !== "delete")
+    .map(([_, price, amount]) => ({ price, amount }));
 
-const asksMapped = padArray(asksMappedFiltered, 15);
-const bidsMapped = padArray(bidsMappedFiltered, 15);
+  const mergedBids = padArray(mergeOrders(bids, simulatedOrders, "buy"), 15);
+  const mergedAsks = padArray(mergeOrders(asks, simulatedOrders, "sell"), 15);
 
-const asksWithTotal = calculateTotal(asksMapped);
-const bidsWithTotal = calculateTotal(bidsMapped);
+  const bidsWithTotal = calculateTotal(mergedBids);
+  const asksWithTotal = calculateTotal(mergedAsks);
 
-const lowestBid = bidsMapped.length > 0 ? bidsMapped[bidsMapped.length - 1].price : "--";
-const highestAsk = asksMapped.length > 0 ? asksMapped[0].price : "--";
+  const lowestBid =
+    mergedBids.length > 0 ? mergedBids[mergedBids.length - 1].price : "--";
+  const highestAsk = mergedAsks.length > 0 ? mergedAsks[0].price : "--";
 
-
-
-  
   if (loading) return <div className="text-white p-4">Loading order book...</div>;
   if (error) return <div className="text-red-500 p-4">Error: {error}</div>;
 
@@ -74,7 +92,6 @@ const highestAsk = asksMapped.length > 0 ? asksMapped[0].price : "--";
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Bids */}
         <div>
-          {/* <h2 className="text-green-400 text-lg mb-2 font-semibold">Bids</h2> */}
           <table className="w-full border-separate border-spacing-y-2">
             <thead>
               <tr className="text-xs text-white">
@@ -85,7 +102,12 @@ const highestAsk = asksMapped.length > 0 ? asksMapped[0].price : "--";
             </thead>
             <tbody>
               {bidsWithTotal.map((bid, i) => (
-                <tr key={i} className="bg-black/20 rounded-md">
+                <tr
+                  key={i}
+                  className={`rounded-md ${
+                    bid.isSimulated ? "bg-green-800/30" : "bg-black/20"
+                  }`}
+                >
                   <td className="px-3 py-1 text-green-400">{bid.price}</td>
                   <td className="px-3 py-1">{bid.amount}</td>
                   <td className="px-3 py-1">{bid.total}</td>
@@ -97,7 +119,6 @@ const highestAsk = asksMapped.length > 0 ? asksMapped[0].price : "--";
 
         {/* Asks */}
         <div>
-          {/* <h2 className="text-red-400 text-lg mb-2 font-semibold">Asks</h2> */}
           <table className="w-full border-separate border-spacing-y-2">
             <thead>
               <tr className="text-xs text-white">
@@ -108,7 +129,12 @@ const highestAsk = asksMapped.length > 0 ? asksMapped[0].price : "--";
             </thead>
             <tbody>
               {asksWithTotal.map((ask, i) => (
-                <tr key={i} className="bg-black/20 rounded-md">
+                <tr
+                  key={i}
+                  className={`rounded-md ${
+                    ask.isSimulated ? "bg-red-800/30" : "bg-black/20"
+                  }`}
+                >
                   <td className="px-3 py-1 text-red-400">{ask.price}</td>
                   <td className="px-3 py-1">{ask.amount}</td>
                   <td className="px-3 py-1">{ask.total}</td>
