@@ -18,7 +18,7 @@ export default function useSpreadHistory(spread, interval = 1000, maxEntries = 6
       const currentSpread = spreadRef.current;
 
       // Logging to confirm we're getting correct spread
-      console.log("Current Spread inside interval:", currentSpread);
+      // console.log("Current Spread inside interval:", currentSpread);
 
       if (currentSpread != null) {
         const time = new Date().toLocaleTimeString();

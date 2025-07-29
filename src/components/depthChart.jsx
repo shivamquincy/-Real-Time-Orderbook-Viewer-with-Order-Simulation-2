@@ -10,6 +10,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
+  ReferenceLine
 } from "recharts";
 
 import useOrderBookWebSocket from "@/hooks/useOrderBook";
@@ -19,15 +20,13 @@ const MAX_POINTS = 50;
 
 const DepthChart = () => {
   const orderBook = useOrderBookWebSocket("BTC-PERPETUAL");
+  
   const asksRaw = orderBook.asks || [];
   const bidsRaw = orderBook.bids || [];
+  const lastPrice = orderBook.last_price || 0;
 
   const processedData = useProcessedDepthData(bidsRaw, asksRaw, 500);
-  const lastTradePrice =
-    bidsRaw.length && asksRaw.length
-      ? (bidsRaw[0].price + asksRaw[0].price) / 2
-      : null;
-      console.log(lastTradePrice);
+
 
   const [chartData, setChartData] = useState([]);
   const bufferRef = useRef([]);
@@ -66,26 +65,17 @@ const DepthChart = () => {
           <YAxis />
           <Tooltip />
           <Legend />
+{/*       
 
-          {/* Area with gradient underlines */}
-          <Area
-            type="monotone"
-            dataKey="bid"
-            stroke={false}
-            fill="url(#bidGradient)"
-            dot={false}
-            isAnimationActive={false}
-          />
-          <Area
-            type="monotone"
-            dataKey="ask"
-            stroke={false}
-            fill="url(#askGradient)"
-            dot={false}
-            isAnimationActive={false}
-          />
+
 
           {/* Crisp top edge lines */}
+                <ReferenceLine
+            x={lastPrice}
+            stroke="purple"
+            strokeDasharray="3 3"
+            label={{ value: "Last Trade", position: "top", fill: "purple" }}
+          />
           <Line
             type="monotone"
             dataKey="bid"

@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState ,useRef} from 'react';
 
 export default function useOrderBookWebSocket(instrument = 'BTC-PERPETUAL') {
   const [orderBook, setOrderBook] = useState({ bids: [], asks: [] });
-
+  const lastPriceRef = useRef(null);
   useEffect(() => {
     const socket = new WebSocket('wss://www.deribit.com/ws/api/v2');
+
     console.log('📡 Connecting to Deribit WebSocket...');
 
     socket.onopen = () => {
@@ -37,20 +38,24 @@ export default function useOrderBookWebSocket(instrument = 'BTC-PERPETUAL') {
       // console.log('📩 WebSocket message:', data);
 
       // Initial snapshot
-      if (data.result && data.result.bids && data.result.asks) {
-        const { bids, asks } = data.result;
+      if (data.result && data.result.bids && data.result.asks ) {
+        const { bids, asks, last_price } = data.result;
+        lastPriceRef.current = last_price;
         setOrderBook({
           bids: bids.slice(0, 15),
           asks: asks.slice(0, 15),
+          last_price : last_price
         });
       }
 
       // Live updates
       if (data.method === 'subscription' && data.params?.data) {
         const { bids, asks } = data.params.data;
+
         setOrderBook({
           bids: bids.slice(0, 15),
           asks: asks.slice(0, 15),
+          last_price: lastPriceRef.current
         });
       }
     };
