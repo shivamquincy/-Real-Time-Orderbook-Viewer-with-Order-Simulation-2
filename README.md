@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Order Book Visualizer 💹
 
-## Getting Started
+A lightweight, performant React app that simulates an **Order Book UI** using live websocket data. It features a spread chart, depth visualization, and live order matching — inspired by real trading interfaces such as Binance or Coinbase Pro.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🖼️ Preview
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+<!-- Replace `./screenshots/ui.png` with your actual screenshot path -->
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+![Output Screenshot](public/output.png)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🚀 Features
 
-To learn more about Next.js, take a look at the following resources:
+- 📡 **Real-time Order Book** using WebSocket data
+- 📊 **Spread Chart** to visualize bid-ask spread dynamically
+- 🧮 **Aggregated Depth Chart** to simulate order matching depth
+- ♻️ Modular custom hooks: `useOrderBook`, `useSpreadData`, and `useProcessData`
+- ⚛️ Built with React + Zustand (lightweight state management)
+- 📁 Clean component structure and well-documented code
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🔧 Tech Stack
 
-## Deploy on Vercel
+- **Frontend**: React + Vite
+- **State Management**: Zustand
+- **Charting**: Recharts
+- **WebSocket Handling**: Native JS + custom hooks
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🧠 Architecture
+
+The app uses a **custom hook-driven** architecture to ensure separation of concerns and maintainability.
+
+```plaintext
+useOrderBook → Fetches + maintains live bids & asks
+   |
+   ├── useSpreadData → Derives spread metrics from order book
+   └── useProcessData → Aggregates depth info for visualization
