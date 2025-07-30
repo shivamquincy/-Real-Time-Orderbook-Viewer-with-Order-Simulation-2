@@ -26,7 +26,7 @@ A lightweight, performant React app that simulates an **Order Book UI** using li
 ## 🔧 Tech Stack
 
 - **Frontend**: React + Vite
-- **State Management**: Zustand
+- **State Management**: ContextAPI
 - **Charting**: Recharts
 - **WebSocket Handling**: Native JS + custom hooks
 
