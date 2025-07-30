@@ -40,6 +40,7 @@ useEffect(() => {
     register,
     handleSubmit,
     watch,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
@@ -63,13 +64,8 @@ useEffect(() => {
       timestamp: Date.now(),
     };
 
-    if (order.delay > 0) {
-      setTimeout(() => {
-        addOrderToSimulation(order);
-      }, order.delay * 1000);
-    } else {
-      addOrderToSimulation(order);
-    }
+    addOrderToSimulation(order);
+     reset();
   };
 
   const selectedOrderType = watch('orderType')

@@ -50,7 +50,21 @@ const OrderBookTables = () => {
   const loading = !orderBook?.bids || !orderBook?.asks;
   const error = !orderBook ? "Failed to load order book" : null;
 
-  const { simulatedOrders } = useSimulatedOrders();
+  const { simulatedOrders, setSimulatedOrders } = useSimulatedOrders();
+
+  // Auto-remove expired simulated orders based on delay and timestamp
+  useEffect(() => {
+    if (simulatedOrders.length === 0) return;
+
+    const interval = setInterval(() => {
+      const now = Date.now();
+      setSimulatedOrders((prevOrders) =>
+        prevOrders.filter(order => now - order.timestamp < order.delay * 1000)
+      );
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [simulatedOrders, setSimulatedOrders]);
 
   const asksRaw = orderBook.asks || [];
   const bidsRaw = orderBook.bids || [];
