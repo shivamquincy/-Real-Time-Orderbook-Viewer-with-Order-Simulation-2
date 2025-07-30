@@ -3,43 +3,33 @@ import OrderForm from '@/components/orderForm';
 import OrderBookTables from '@/components/orderBook';
 import SpreadChart from '@/components/spreadChart';
 import DepthChart from '@/components/depthChart';
-
+import Navbar from '@/components/navBar';
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen p-4">
-      <div className="flex items-center gap-2">
-        <img
-          src="/file1.png"
-          alt="Vam Charts Logo"
-          className="w-40 h-35 "
-        />
-      </div>
+    <div className="min-h-screen p-4 bg-black">
+      <Navbar />
 
       {/* Grid layout */}
-      <main className="grid grid-cols-4 gap-4">
+      <main className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {/* Order Form */}
-        <section className="col-span-1 bg-[#000003] p-4 rounded">
+        <section className="bg-[#000003] p-4 rounded md:col-span-1 lg:col-span-1">
           <OrderForm />
         </section>
 
         {/* Order Book */}
-        <section className="col-span-2 bg-[#000003] p-4 rounded">
+        <section className="bg-[#000003] p-4 rounded md:col-span-2 lg:col-span-2">
           <OrderBookTables />
         </section>
 
         {/* Future Order Table + Charts */}
-        <section className="col-span-1 bg-[#000003] p-4 rounded flex flex-col gap-4">
-          {/* Placeholder for Future Order Table */}
-
-
-          {/* Charts */}
-          <div className="h-1/2 flex flex-col gap-4">
-            <div>
+        <section className="p-4 rounded flex flex-col gap-4 md:col-span-3 lg:col-span-1">
+          <div className="flex flex-col gap-4 h-full">
+            <div className="bg-[#141d18] p-3 rounded">
               <h3 className="text-white text-sm mb-1">Spread</h3>
               <SpreadChart />
             </div>
-            <div>
+            <div className="bg-[#141d18] p-3 rounded">
               <h3 className="text-white text-sm mb-1">Market Depth</h3>
               <DepthChart />
             </div>
