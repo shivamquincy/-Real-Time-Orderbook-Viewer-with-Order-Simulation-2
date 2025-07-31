@@ -1,6 +1,6 @@
 # Order Book Visualizer 💹
 
-A lightweight, performant React app that simulates an **Order Book UI** using live websocket data. It features a spread chart, depth visualization, and live order matching — inspired by real trading interfaces such as Binance or Coinbase Pro.
+A lightweight, performant Next Js React app that simulates an **Order Book UI** using live websocket data. It features a spread chart, depth visualization, and live order matching — inspired by real trading interfaces such as Go Quant.
 
 ---
 
@@ -25,7 +25,7 @@ A lightweight, performant React app that simulates an **Order Book UI** using li
 
 ## 🔧 Tech Stack
 
-- **Frontend**: React + Vite
+- **Frontend**: Next JS
 - **State Management**: ContextAPI
 - **Charting**: Recharts
 - **WebSocket Handling**: Native JS + custom hooks
