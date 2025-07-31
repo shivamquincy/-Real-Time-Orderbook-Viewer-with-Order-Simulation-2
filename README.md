@@ -18,7 +18,7 @@ A lightweight, performant React app that simulates an **Order Book UI** using li
 - 📊 **Spread Chart** to visualize bid-ask spread dynamically
 - 🧮 **Aggregated Depth Chart** to simulate order matching depth
 - ♻️ Modular custom hooks: `useOrderBook`, `useSpreadData`, and `useProcessData`
-- ⚛️ Built with React + Zustand (lightweight state management)
+- ⚛️ Built with React + ContextAPI (lightweight state management)
 - 📁 Clean component structure and well-documented code
 
 ---
